@@ -19,22 +19,21 @@ import java.util.Arrays;
 
 /**
  * <p>This class is meant to replaces the old {@link CheaperCharBuffer} in all areas
- * where performance and memory-efficency is key. XMLString compatibility
- * remains in place in case one has used that in their own code.
+ * where performance and memory-efficency is key. XMLString compatibility remains in place in case one has used that in
+ * their own code.
  *
  * <p>This buffer is mutable and when you use it, make sure you work with
- * it responsibly. In many cases, we will reuse the buffer to avoid fresh
- * memory allocations, hence you have to pay attention to its usage pattern.
- * It is not meant to be a general String replacement.
+ * it responsibly. In many cases, we will reuse the buffer to avoid fresh memory allocations, hence you have to pay
+ * attention to its usage pattern. It is not meant to be a general String replacement.
  *
  * <p>This class avoids many of the standard runtime checks that will result
- * in a runtime or array exception anyway. Why check twice and raise the
- * same exception?
+ * in a runtime or array exception anyway. Why check twice and raise the same exception?
  *
  * @author René Schwietzke
  * @since 3.10.0
  */
 public class CheaperCharBuffer implements CharSequence {
+
     // our data, can grow - that is not safe and has be altered from the original code
     // to allow speed
     public char[] data_;
@@ -81,7 +80,7 @@ public class CheaperCharBuffer implements CharSequence {
      * Constructs an XMLCharBuffer with a desired size.
      *
      * @param startSize the size of the buffer to start with
-     * @param growBy by how much do we want to grow when needed
+     * @param growBy    by how much do we want to grow when needed
      */
     public CheaperCharBuffer(final int startSize, final int growBy) {
         this.data_ = new char[startSize];
@@ -90,8 +89,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Constructs an XMLCharBuffer from another buffer. Copies the data
-     * over. The new buffer capacity matches the length of the source.
+     * Constructs an XMLCharBuffer from another buffer. Copies the data over. The new buffer capacity matches the length
+     * of the source.
      *
      * @param src the source buffer to copy from
      */
@@ -100,11 +99,10 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Constructs an XMLCharBuffer from another buffer. Copies the data
-     * over. You can add more capacity on top of the source length. If
-     * you specify 0, the capacity will match the src length.
+     * Constructs an XMLCharBuffer from another buffer. Copies the data over. You can add more capacity on top of the
+     * source length. If you specify 0, the capacity will match the src length.
      *
-     * @param src the source buffer to copy from
+     * @param src         the source buffer to copy from
      * @param addCapacity how much capacity to add to origin length
      */
     public CheaperCharBuffer(final CheaperCharBuffer src, final int addCapacity) {
@@ -114,8 +112,7 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Constructs an XMLCharBuffer from a string. To avoid
-     * too much allocation, we just take the string array as is and
+     * Constructs an XMLCharBuffer from a string. To avoid too much allocation, we just take the string array as is and
      * don't allocate extra space in the first place.
      *
      * @param src the string to copy from
@@ -127,9 +124,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Constructs an XMLString structure preset with the specified values.
-     * There will not be any room to grow, if you need that, construct an
-     * empty one and append.
+     * Constructs an XMLString structure preset with the specified values. There will not be any room to grow, if you need
+     * that, construct an empty one and append.
      *
      * <p>There are not range checks performed. Make sure your data is correct.
      *
@@ -156,9 +152,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Returns the current max capacity without growth. Does not
-     * indicate how much capacity is already in use. Use {@link #length()}
-     * for that.
+     * Returns the current max capacity without growth. Does not indicate how much capacity is already in use. Use
+     * {@link #length()} for that.
      *
      * @return the current capacity, not taken any usage into account
      */
@@ -225,13 +220,11 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Add data from a char array to this buffer with the ability to specify
-     * a range to copy from
+     * Add data from a char array to this buffer with the ability to specify a range to copy from
      *
-     * @param src the source char array
+     * @param src    the source char array
      * @param offset the pos to start to copy from
      * @param length the length of the data to copy
-     *
      * @return this instance
      */
     public CheaperCharBuffer append(final char[] src, final int offset, final int length) {
@@ -257,16 +250,14 @@ public class CheaperCharBuffer implements CharSequence {
     /**
      * Tell us how much the capacity grows if needed
      *
-     * @return the value that determines how much we grow the backing
-     *      array in case we have to
+     * @return the value that determines how much we grow the backing array in case we have to
      */
     public int getGrowBy() {
         return this.growBy_;
     }
 
     /**
-     * Resets the buffer to 0 length. It won't resize it to avoid memory
-     * churn.
+     * Resets the buffer to 0 length. It won't resize it to avoid memory churn.
      *
      * @return this instance for fluid programming
      */
@@ -277,8 +268,7 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Resets the buffer to 0 length and sets the new data. This
-     * is a little cheaper than clear().append(c) depending on
+     * Resets the buffer to 0 length and sets the new data. This is a little cheaper than clear().append(c) depending on
      * the where  and the inlining decisions.
      *
      * @param c the char to set
@@ -300,9 +290,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Does this buffer end with this string? If we check for
-     * the empty string, we get true. If we would support JDK 11, we could
-     * use Arrays.mismatch and be way faster.
+     * Does this buffer end with this string? If we check for the empty string, we get true. If we would support JDK 11,
+     * we could use Arrays.mismatch and be way faster.
      *
      * @param s the string to check the end against
      * @return true of the end matches the buffer, false otherwise
@@ -327,17 +316,15 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Reduces the buffer to the content between start and end marker when
-     * only whitespaces are found before the startMarker as well as after the end marker.
-     * If both strings overlap due to identical characters such as "foo" and "oof"
-     * and the buffer is " foof ", we don't do anything.
+     * Reduces the buffer to the content between start and end marker when only whitespaces are found before the
+     * startMarker as well as after the end marker. If both strings overlap due to identical characters such as "foo" and
+     * "oof" and the buffer is " foof ", we don't do anything.
      *
      * <p>If a marker is empty, it behaves like {@link java.lang.String#trim()} on that side.
      *
      * @param startMarker the start string to find, must not be null
-     * @param endMarker the end string to find, must not be null
+     * @param endMarker   the end string to find, must not be null
      * @return this instance
-     *
      * @deprecated Use the new method {@link #trimToContent(String, String)} instead.
      */
     public CheaperCharBuffer reduceToContent(final String startMarker, final String endMarker) {
@@ -345,15 +332,14 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Reduces the buffer to the content between start and end marker when
-     * only whitespaces are found before the startMarker as well as after the end marker.
-     * If both strings overlap due to identical characters such as "foo" and "oof"
-     * and the buffer is " foof ", we don't do anything.
+     * Reduces the buffer to the content between start and end marker when only whitespaces are found before the
+     * startMarker as well as after the end marker. If both strings overlap due to identical characters such as "foo" and
+     * "oof" and the buffer is " foof ", we don't do anything.
      *
      * <p>If a marker is empty, it behaves like {@link java.lang.String#trim()} on that side.
      *
      * @param startMarker the start string to find, must not be null
-     * @param endMarker the end string to find, must not be null
+     * @param endMarker   the end string to find, must not be null
      * @return this instance
      */
     public CheaperCharBuffer trimToContent(final String startMarker, final String endMarker) {
@@ -440,8 +426,7 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Removes all whitespace before the first non-whitespace char.
-     * If all are whitespaces, we get an empty buffer
+     * Removes all whitespace before the first non-whitespace char. If all are whitespaces, we get an empty buffer
      *
      * @return this instance
      */
@@ -476,11 +461,9 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Removes all whitespace at the end.
-     * If all are whitespace, we get an empty buffer
+     * Removes all whitespace at the end. If all are whitespace, we get an empty buffer
      *
      * @return this instance
-     *
      * @deprecated Use {@link #trimTrailing()} instead.
      */
     public CheaperCharBuffer trimWhitespaceAtEnd() {
@@ -488,8 +471,7 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Removes all whitespace at the end.
-     * If all are whitespace, we get an empty buffer
+     * Removes all whitespace at the end. If all are whitespace, we get an empty buffer
      *
      * @return this instance
      */
@@ -508,13 +490,11 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Shortens the buffer by that many positions. If the count is
-     * larger than the length, we get just an empty buffer. If you pass in negative
-     * values, we are failing, likely often silently. It is all about performance and
-     * not a general all-purpose API.
+     * Shortens the buffer by that many positions. If the count is larger than the length, we get just an empty buffer. If
+     * you pass in negative values, we are failing, likely often silently. It is all about performance and not a general
+     * all-purpose API.
      *
-     * @param count a positive number, no runtime checks, if count is larger than
-     *      length, we get length = 0
+     * @param count a positive number, no runtime checks, if count is larger than length, we get length = 0
      * @return this instance
      */
     public CheaperCharBuffer shortenBy(final int count) {
@@ -534,9 +514,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Returns a string representation of this buffer. This will be a copy
-     * operation. If the buffer is emoty, we get a constant empty String back
-     * to avoid any overhead.
+     * Returns a string representation of this buffer. This will be a copy operation. If the buffer is emoty, we get a
+     * constant empty String back to avoid any overhead.
      *
      * @return a string of the content of this buffer
      */
@@ -551,15 +530,12 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Returns the char a the given position. Will complain if
-     * we try to read outside the range. We do a range check here
-     * because we might not notice when we are within the buffer
-     * but outside the current length.
+     * Returns the char a the given position. Will complain if we try to read outside the range. We do a range check here
+     * because we might not notice when we are within the buffer but outside the current length.
      *
      * @param index the position to read from
      * @return the char at the position
-     * @throws IndexOutOfBoundsException
-     *      in case one tries to read outside of valid buffer range
+     * @throws IndexOutOfBoundsException in case one tries to read outside of valid buffer range
      */
     @Override
     public char charAt(final int index) {
@@ -572,13 +548,10 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Returns the char at the given position. No checks are
-     * performed. It is up to the caller to make sure we
-     * read correctly. Reading outside of the array will
-     * cause an {@link IndexOutOfBoundsException} but using an
-     * incorrect position in the array (such as beyond length)
-     * might stay unnoticed! This is a performance method,
-     * use at your own risk.
+     * Returns the char at the given position. No checks are performed. It is up to the caller to make sure we read
+     * correctly. Reading outside of the array will cause an {@link IndexOutOfBoundsException} but using an incorrect
+     * position in the array (such as beyond length) might stay unnoticed! This is a performance method, use at your own
+     * risk.
      *
      * @param index the position to read from
      * @return the char at the position
@@ -598,24 +571,17 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Returns a <code>CharSequence</code> that is a subsequence of this sequence.
-     * The subsequence starts with the <code>char</code> value at the specified index and
-     * ends with the <code>char</code> value at index <tt>end - 1</tt>.  The length
-     * (in <code>char</code>s) of the
-     * returned sequence is <tt>end - start</tt>, so if <tt>start == end</tt>
+     * Returns a <code>CharSequence</code> that is a subsequence of this sequence. The subsequence starts with the
+     * <code>char</code> value at the specified index and ends with the <code>char</code> value at index <tt>end - 1</tt>.
+     *  The length (in <code>char</code>s) of the returned sequence is <tt>end - start</tt>, so if <tt>start == end</tt>
      * then an empty sequence is returned.
      *
-     * @param   start   the start index, inclusive
-     * @param   end     the end index, exclusive
-     *
-     * @return  the specified subsequence
-     *
-     * @throws  IndexOutOfBoundsException
-     *          if <tt>start</tt> or <tt>end</tt> are negative,
-     *          if <tt>end</tt> is greater than <tt>length()</tt>,
-     *          or if <tt>start</tt> is greater than <tt>end</tt>
-     *
+     * @param start the start index, inclusive
+     * @param end   the end index, exclusive
+     * @return the specified subsequence
      * @return a charsequence of this buffer
+     * @throws IndexOutOfBoundsException if <tt>start</tt> or <tt>end</tt> are negative, if <tt>end</tt> is greater than
+     *                                   <tt>length()</tt>, or if <tt>start</tt> is greater than <tt>end</tt>
      */
     @Override
     public CharSequence subSequence(final int start, final int end) {
@@ -635,9 +601,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Two buffers are identical when the length and
-     * the content of the backing array (only for the
-     * data in view) are identical.
+     * Two buffers are identical when the length and the content of the backing array (only for the data in view) are
+     * identical.
      *
      * @param o the object to compare with
      * @return true if length and array content match, false otherwise
@@ -668,9 +633,8 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * We don't cache the hashcode because we mutate often. Don't use this in
-     * hashmaps as key. But you can use that to look up in a hashmap against
-     * a string using the CharSequence interface.
+     * We don't cache the hashcode because we mutate often. Don't use this in hashmaps as key. But you can use that to
+     * look up in a hashmap against a string using the CharSequence interface.
      *
      * @return the hashcode, similar to what a normal string would deliver
      */
@@ -686,15 +650,12 @@ public class CheaperCharBuffer implements CharSequence {
     }
 
     /**
-     * Append a character to an XMLCharBuffer. The character is an int value, and
-     * can either be a single UTF-16 character or a supplementary character
-     * represented by two UTF-16 code points.
+     * Append a character to an XMLCharBuffer. The character is an int value, and can either be a single UTF-16 character
+     * or a supplementary character represented by two UTF-16 code points.
      *
      * @param value The character value.
      * @return this instance for fluid programming
-     *
-     * @throws IllegalArgumentException if the specified
-     *          {@code codePoint} is not a valid Unicode code point.
+     * @throws IllegalArgumentException if the specified {@code codePoint} is not a valid Unicode code point.
      */
     public CheaperCharBuffer appendCodePoint(final int value) {
         if (value <= Character.MAX_VALUE) {

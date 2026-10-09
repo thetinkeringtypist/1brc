@@ -15,7 +15,7 @@
  */
 package dev.morling.onebrc;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,24 +28,28 @@ public class CalculateAverage_baseline {
 
     private static final String FILE = "./measurements.txt";
 
-    private static record Measurement(String station, double value) {
-        private Measurement(String[] parts) {
-            this(parts[0], Double.parseDouble(parts[1]));
-        }
+  private static record Measurement(String station, double value) {
+
+    private Measurement(String[] parts) {
+      this(parts[0], Double.parseDouble(parts[1]));
+    }
+  }
+
+  private static record ResultRow(double min, double mean, double max) {
+
+    public String toString() {
+      return round(min) + "/" + round(mean) + "/" + round(max);
     }
 
-    private static record ResultRow(double min, double mean, double max) {
+    private double round(double value) {
+      return Math.round(value * 10.0) / 10.0;
+    }
+  }
 
-        public String toString() {
-            return round(min) + "/" + round(mean) + "/" + round(max);
-        }
-
-        private double round(double value) {
-            return Math.round(value * 10.0) / 10.0;
-        }
-    };
+    ;
 
     private static class MeasurementAggregator {
+
         private double min = Double.POSITIVE_INFINITY;
         private double max = Double.NEGATIVE_INFINITY;
         private double sum;

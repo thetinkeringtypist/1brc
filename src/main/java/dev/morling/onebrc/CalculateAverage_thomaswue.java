@@ -17,7 +17,10 @@ package dev.morling.onebrc;
 
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -26,17 +29,14 @@ import java.util.concurrent.atomic.AtomicLong;
  * thread per available core, and then processes segments of size {@link #SEGMENT_SIZE} at a time. The segments are
  * split into 3 parts and cursors for each of those parts are processing the segment simultaneously in the same thread.
  * Results are accumulated into {@link Result} objects and a tree map is used to sequentially accumulate the results in
- * the end.
- * Runs in 0.31 on an Intel i9-13900K while the reference implementation takes 120.37s.
- * Credit:
- *  Quan Anh Mai for branchless number parsing code
- *  Alfonso² Peterssen for suggesting memory mapping with unsafe and the subprocess idea
- *  Artsiom Korzun for showing the benefits of work stealing at 2MB segments instead of equal split between workers
- *  Jaromir Hamala for showing that avoiding the branch misprediction between <8 and 8-16 cases is a big win even if
- *  more work is performed
- *  Van Phu DO for demonstrating the lookup tables based on masks instead of bit shifting
+ * the end. Runs in 0.31 on an Intel i9-13900K while the reference implementation takes 120.37s. Credit: Quan Anh Mai
+ * for branchless number parsing code Alfonso² Peterssen for suggesting memory mapping with unsafe and the subprocess
+ * idea Artsiom Korzun for showing the benefits of work stealing at 2MB segments instead of equal split between workers
+ * Jaromir Hamala for showing that avoiding the branch misprediction between <8 and 8-16 cases is a big win even if more
+ * work is performed Van Phu DO for demonstrating the lookup tables based on masks instead of bit shifting
  */
 public class CalculateAverage_thomaswue {
+
     private static final String FILE = "./measurements.txt";
     private static final int MIN_TEMP = -999;
     private static final int MAX_TEMP = 999;
@@ -55,7 +55,8 @@ public class CalculateAverage_thomaswue {
         int numberOfWorkers = Runtime.getRuntime().availableProcessors();
         try (var fileChannel = FileChannel.open(java.nio.file.Path.of(FILE), java.nio.file.StandardOpenOption.READ)) {
             long fileSize = fileChannel.size();
-            final long fileStart = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize, java.lang.foreign.Arena.global()).address();
+            final long fileStart = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize,
+                    java.lang.foreign.Arena.global()).address();
             final long fileEnd = fileStart + fileSize;
             final AtomicLong cursor = new AtomicLong(fileStart);
 
@@ -150,9 +151,12 @@ public class CalculateAverage_thomaswue {
                 long delimiterMask1b = findDelimiter(word1b);
                 long delimiterMask2b = findDelimiter(word2b);
                 long delimiterMask3b = findDelimiter(word3b);
-                Result existingResult1 = findResult(word1, delimiterMask1, word1b, delimiterMask1b, scanner1, results, collectedResults);
-                Result existingResult2 = findResult(word2, delimiterMask2, word2b, delimiterMask2b, scanner2, results, collectedResults);
-                Result existingResult3 = findResult(word3, delimiterMask3, word3b, delimiterMask3b, scanner3, results, collectedResults);
+                Result existingResult1 = findResult(word1, delimiterMask1, word1b, delimiterMask1b, scanner1, results,
+                        collectedResults);
+                Result existingResult2 = findResult(word2, delimiterMask2, word2b, delimiterMask2b, scanner2, results,
+                        collectedResults);
+                Result existingResult3 = findResult(word3, delimiterMask3, word3b, delimiterMask3b, scanner3, results,
+                        collectedResults);
                 long number1 = scanNumber(scanner1);
                 long number2 = scanNumber(scanner2);
                 long number3 = scanNumber(scanner3);
@@ -185,11 +189,14 @@ public class CalculateAverage_thomaswue {
         }
     }
 
-    private static final long[] MASK1 = new long[]{ 0xFFL, 0xFFFFL, 0xFFFFFFL, 0xFFFFFFFFL, 0xFFFFFFFFFFL, 0xFFFFFFFFFFFFL, 0xFFFFFFFFFFFFFFL, 0xFFFFFFFFFFFFFFFFL,
+    private static final long[] MASK1 = new long[]{ 0xFFL, 0xFFFFL, 0xFFFFFFL, 0xFFFFFFFFL, 0xFFFFFFFFFFL, 0xFFFFFFFFFFFFL,
+            0xFFFFFFFFFFFFFFL, 0xFFFFFFFFFFFFFFFFL,
             0xFFFFFFFFFFFFFFFFL };
-    private static final long[] MASK2 = new long[]{ 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0xFFFFFFFFFFFFFFFFL };
+    private static final long[] MASK2 = new long[]{ 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0x00L, 0x00L,
+            0xFFFFFFFFFFFFFFFFL };
 
-    private static Result findResult(long initialWord, long initialDelimiterMask, long wordB, long delimiterMaskB, Scanner scanner, Result[] results,
+    private static Result findResult(long initialWord, long initialDelimiterMask, long wordB, long delimiterMaskB,
+                                     Scanner scanner, Result[] results,
                                      List<Result> collectedResults) {
         Result existingResult;
         long word = initialWord;
@@ -324,7 +331,8 @@ public class CalculateAverage_thomaswue {
         return (input - 0x0101010101010101L) & ~input & 0x8080808080808080L;
     }
 
-    private static Result newEntry(Result[] results, long nameAddress, int hash, int nameLength, Scanner scanner, List<Result> collectedResults) {
+    private static Result newEntry(Result[] results, long nameAddress, int hash, int nameLength, Scanner scanner,
+                                   List<Result> collectedResults) {
         Result r = new Result();
         results[hash] = r;
         int totalLength = nameLength + 1;
@@ -343,6 +351,7 @@ public class CalculateAverage_thomaswue {
     }
 
     private static final class Result {
+
         long firstNameWord, secondNameWord;
         short min, max;
         int count;
@@ -355,7 +364,8 @@ public class CalculateAverage_thomaswue {
         }
 
         public String toString() {
-            return round(((double) min) / 10.0) + "/" + round((((double) sum) / 10.0) / count) + "/" + round(((double) max) / 10.0);
+            return round(((double) min) / 10.0) + "/" + round((((double) sum) / 10.0) / count) + "/" + round(
+                    ((double) max) / 10.0);
         }
 
         private static double round(double value) {
@@ -388,6 +398,7 @@ public class CalculateAverage_thomaswue {
     }
 
     private static final class Scanner {
+
         private static final sun.misc.Unsafe UNSAFE = initUnsafe();
         private long pos;
         private final long end;

@@ -31,12 +31,13 @@ public class CreateMeasurementsFast {
     private static final Path MEASUREMENT_FILE = Path.of("./measurements.txt");
     static final Executor EXECUTOR_SERVICE = Executors.newWorkStealingPool();
 
-    private record WeatherStation(String id, double meanTemperature) {
-        double measurement() {
-            double m = ThreadLocalRandom.current().nextGaussian(meanTemperature, 10);
-            return Math.round(m * 10.0) / 10.0;
-        }
+  private record WeatherStation(String id, double meanTemperature) {
+
+    double measurement() {
+      double m = ThreadLocalRandom.current().nextGaussian(meanTemperature, 10);
+      return Math.round(m * 10.0) / 10.0;
     }
+  }
 
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
@@ -64,7 +65,7 @@ public class CreateMeasurementsFast {
             // ignore
         }
 
-        // @formatter:off
+    // @formatter:off
         // data from https://en.wikipedia.org/wiki/List_of_cities_by_average_temperature;
         // converted using https://wikitable2csv.ggor.de/
         // brought to form using DuckDB:

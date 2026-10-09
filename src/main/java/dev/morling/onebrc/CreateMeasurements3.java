@@ -64,6 +64,7 @@ public class CreateMeasurements3 {
     }
 
     record WeatherStation(String name, float avgTemp) {
+
     }
 
     private static ArrayList<WeatherStation> generateWeatherStations() throws Exception {

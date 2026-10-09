@@ -78,6 +78,7 @@ public class CalculateAverage_gonix {
     }
 
     private static class Aggregator {
+
         private static final int MAX_STATIONS = 10_000;
         private static final int MAX_STATION_SIZE = Math.ceilDiv(100, 8) + 5;
         private static final int INDEX_SIZE = 1024 * 1024;
@@ -374,6 +375,7 @@ public class CalculateAverage_gonix {
         }
 
         public static class Entry {
+
             private final long[] mem;
             private final int offset;
             private String key;

@@ -16,15 +16,14 @@
 package org.rschwietzke;
 
 /**
- * Ultra-fast pseudo random generator that is not synchronized!
- * Don't use anything from Random by inheritance, this will inherit
- * a volatile! Not my idea, copyied in parts some demo random
- * generator lessons.
+ * Ultra-fast pseudo random generator that is not synchronized! Don't use anything from Random by inheritance, this will
+ * inherit a volatile! Not my idea, copyied in parts some demo random generator lessons.
  *
  * @author rschwietzke
  *
  */
 public class FastRandom {
+
     private long seed;
 
     public FastRandom() {
@@ -58,7 +57,9 @@ public class FastRandom {
         int r = next(31);
         int m = bound - 1;
         if ((bound & m) == 0) // i.e., bound is a power of 2
+        {
             r = (int) ((bound * (long) r) >> 31);
+        }
         else {
             for (int u = r; u - (r = u % bound) + m < 0; u = next(31))
                 ;
@@ -68,6 +69,7 @@ public class FastRandom {
 
     /**
      * Borrowed from the JDK
+     *
      * @return
      */
     public int nextInt() {

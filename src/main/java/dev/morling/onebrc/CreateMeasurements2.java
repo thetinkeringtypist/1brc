@@ -27,14 +27,14 @@ import org.rschwietzke.CheaperCharBuffer;
 import org.rschwietzke.FastRandom;
 
 /**
- * Faster version with some data faking instead of a real Gaussian distribution
- * Good enough for our purppose I guess.
+ * Faster version with some data faking instead of a real Gaussian distribution Good enough for our purppose I guess.
  */
 public class CreateMeasurements2 {
 
     private static final String FILE = "./measurements2.txt";
 
     static class WeatherStation {
+
         final static char[] NUMBERS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
         final String id;
@@ -90,7 +90,7 @@ public class CreateMeasurements2 {
             System.exit(1);
         }
 
-        // @formatter:off
+    // @formatter:off
         // data from https://en.wikipedia.org/wiki/List_of_cities_by_average_temperature;
         // converted using https://wikitable2csv.ggor.de/
         // brought to form using DuckDB:
@@ -541,14 +541,16 @@ public class CreateMeasurements2 {
                 produce(bw, stations, strideSize);
 
                 // we avoid a modulo if here and use the stride size to print and update
-                System.out.println("Wrote %,d measurements in %s ms".formatted((i + 1) * strideSize, System.currentTimeMillis() - start));
+                System.out.println(
+                        "Wrote %,d measurements in %s ms".formatted((i + 1) * strideSize, System.currentTimeMillis() - start));
             }
             // there might be a rest
             produce(bw, stations, remainder);
 
             // write fully before taking measurements
             bw.flush();
-            System.out.println("Created file with %,d measurements in %s ms".formatted(size, System.currentTimeMillis() - start));
+            System.out.println(
+                    "Created file with %,d measurements in %s ms".formatted(size, System.currentTimeMillis() - start));
         }
     }
 
