@@ -23,8 +23,9 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-public class CalculateAverage_thetinkeringtypist2 {
+public class CalculateAverage_thetinkeringtypist3 {
 
     private static final String FILE = "./measurements.txt";
     private static final Map<String, Measurement> MAP = new ConcurrentHashMap<>(512);
@@ -37,11 +38,13 @@ public class CalculateAverage_thetinkeringtypist2 {
             System.exit(0);
         }
 
-        // 1 GiB buffer
-        BufferedReader reader = new BufferedReader(new FileReader(file), 1_073_741_824);
-        reader.lines().parallel().forEach(CalculateAverage_thetinkeringtypist2::insert);
+        // 1/2 GiB buffer for fewer syscalls to fetch data from disk
+        // 1/4 GiB buffer is roughly the same performance for less memory usage
+        BufferedReader reader = new BufferedReader(new FileReader(file), 268_435_456);
+        reader.lines().parallel().forEach(CalculateAverage_thetinkeringtypist3::insert);
         reader.close();
 
+        // Sort keys into
         TreeMap<String, Measurement> treeMap = new TreeMap<>(MAP);
 
         StringBuilder builder = new StringBuilder(treeMap.toString());
@@ -52,39 +55,41 @@ public class CalculateAverage_thetinkeringtypist2 {
     }
 
     private static class Measurement {
-
-        double[] data;
-        long count;
+        double min, mean, max;
+        int count;
 
         private Measurement(double measurement) {
             this.count = 1;
-            this.data = new double[]{ measurement, measurement, measurement };
+            this.min = measurement;
+            this.mean = measurement;
+            this.max = measurement;
         }
 
         public String toString() {
-            return String.format("%.1f/%.1f/%.1f", data[0], data[1], data[2]);
+            return String.format("%.1f/%.1f/%.1f", min, mean, max);
         }
 
         private void update(double m) {
-            // min
-            if (m < data[0]) {
-                data[0] = m;
+            // cal min
+            if (m < min) {
+                min = m;
             }
 
-            // max
-            if (m > data[2]) {
-                data[2] = m;
+            // calc max
+            if (m > max) {
+                max = m;
             }
 
-            // mean
-            data[1] = data[1] + ((m - data[1]) / ++count);
+            // calc running mean
+            mean = mean + ((m - mean) / ++count);
         }
     }
 
     private static void insert(String line) {
-        String[] split = line.split(";");
-        String id = split[0];
-        double m = Double.parseDouble(split[1]);
+        int delimiterIndex = line.indexOf(';');
+        String id = line.substring(0, delimiterIndex);
+        int eolIndex = line.length();
+        double m = Double.parseDouble(line.substring(delimiterIndex + 1, eolIndex));
 
         if (MAP.containsKey(id)) {
             MAP.get(id).update(m);
